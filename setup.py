@@ -127,11 +127,16 @@ setup(name='sslfix',
       description='SSL wrapper for socket objects (2.3, 2.4, 2.5 compatible) (fixed setup.py)',
       long_description=
 """
-**This is a version of ssl with fixed setup.py.**
+**This is a fixed version of ssl-1.15. It's a drop-in replacement for 'ssl' package.**
 
 The fixes are:
- - system-wide test installation is removed (fixes installation into virtualenv).
- - /usr/lib/i386-linux-gnu is also searched for libssl (fixed compilation on ubuntu).
+ - Remove installing tests system-wide (fixes "permission denied" error when installing into virtualenv).
+ - Add /usr/lib/i386-linux-gnu to search path (fixes compilation on ubuntu 12.04).
+ - Do not use SSLv2_method if not present (fixes ImportError: ssl/_ssl2.so: undefined symbol: SSLv2_method).
+
+See https://github.com/denik/sslfix
+
+-------
 
 The old socket.ssl() support for TLS over sockets is being
 superseded in Python 2.6 by a new 'ssl' module.  This package
@@ -210,7 +215,7 @@ all based on OpenSSL, which has its own cast of dozens!
       license='Python (MIT-like)',
       author='See long_description for details',
       author_email='python.ssl.maintainer@gmail.com',
-      url='http://docs.python.org/dev/library/ssl.html',
+      url='https://github.com/denik/sslfix',
       packages=['ssl'],
       ext_modules=[Extension('ssl._ssl2', ['ssl/_ssl2.c'],
                              include_dirs = ssl_incs + [socket_inc],
