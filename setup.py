@@ -1,8 +1,5 @@
 import os, sys
 from distutils.core import setup, Extension
-from distutils.sysconfig import get_python_lib
-from distutils.cmd import Command
-from distutils.command.build import build
 
 if (sys.version_info >= (2, 6, 0)):
     raise ValueError("This extension should not be used with "
@@ -12,48 +9,6 @@ if (sys.version_info >= (2, 6, 0)):
 elif (sys.version_info < (2, 3, 5)):
     sys.stderr.write("Warning:  This code has not been tested "
                      + "with versions of Python less than 2.3.5.\n")
-
-class Test (Command):
-
-    user_options = []
-
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
-
-    def run (self):
-
-        """Run the regrtest module appropriately"""
-
-        # figure out where the _ssl2 extension will be put
-        b = build(self.distribution)
-        b.initialize_options()
-        b.finalize_options()
-        extdir = os.path.abspath(b.build_platlib)
-
-        # now set up the load path
-        topdir = os.path.dirname(os.path.abspath(__file__))
-        localtestdir = os.path.join(topdir, "test")
-        sys.path.insert(0, topdir)        # for ssl package
-        sys.path.insert(0, localtestdir)  # for test module
-        sys.path.insert(0, extdir)        # for _ssl2 extension
-
-        # make sure the network is enabled
-        import test.test_support
-        test.test_support.use_resources = ["network"]
-
-        # and load the test and run it
-        os.chdir(localtestdir)
-        the_module = __import__("test_ssl", globals(), locals(), [])
-        # Most tests run to completion simply as a side-effect of
-        # being imported.  For the benefit of tests that can't run
-        # that way (like test_threaded_import), explicitly invoke
-        # their test_main() function (if it exists).
-        indirect_test = getattr(the_module, "test_main", None)
-        if indirect_test is not None:
-            indirect_test()
 
 
 def find_file(filename, std_dirs, paths):
@@ -130,7 +85,7 @@ def find_ssl():
             ssl_incs += krb5_h
 
     ssl_libs = find_library_file(compiler, 'ssl',
-                                 ['/usr/lib'],
+                                 ['/usr/lib', '/usr/lib/i386-linux-gnu'],
                                  ['/usr/local/lib',
                                   '/usr/local/ssl/lib',
                                   '/usr/contrib/ssl/lib/'
@@ -166,13 +121,18 @@ if sys.platform == 'win32':
 else:
     ssl_incs, ssl_libs, libs = find_ssl()
 
-testdir = os.path.join(get_python_lib(False, True), "test")                                 
 
-setup(name='ssl',
+setup(name='sslfix',
       version='1.15',
-      description='SSL wrapper for socket objects (2.3, 2.4, 2.5 compatible)',
+      description='SSL wrapper for socket objects (2.3, 2.4, 2.5 compatible) (fixed setup.py)',
       long_description=
 """
+**This is a version of ssl with fixed setup.py.**
+
+The fixes are:
+ - system-wide test installation is removed (fixes installation into virtualenv).
+ - /usr/lib/i386-linux-gnu is also searched for libssl (fixed compilation on ubuntu).
+
 The old socket.ssl() support for TLS over sockets is being
 superseded in Python 2.6 by a new 'ssl' module.  This package
 brings that module to older Python releases, 2.3.5 and up (it may
@@ -251,16 +211,10 @@ all based on OpenSSL, which has its own cast of dozens!
       author='See long_description for details',
       author_email='python.ssl.maintainer@gmail.com',
       url='http://docs.python.org/dev/library/ssl.html',
-      cmdclass={'test': Test},
       packages=['ssl'],
       ext_modules=[Extension('ssl._ssl2', ['ssl/_ssl2.c'],
                              include_dirs = ssl_incs + [socket_inc],
                              library_dirs = ssl_libs,
                              libraries = libs,
-                             extra_link_args = link_args)],
-      data_files=[(testdir, ['test/test_ssl.py',
-                             'test/keycert.pem',
-                             'test/badcert.pem',
-                             'test/badkey.pem',
-                             'test/nullcert.pem'])],
+                             extra_link_args = link_args)]
       )
