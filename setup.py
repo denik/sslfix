@@ -85,7 +85,7 @@ def find_ssl():
             ssl_incs += krb5_h
 
     ssl_libs = find_library_file(compiler, 'ssl',
-                                 ['/usr/lib', '/usr/lib/i386-linux-gnu'],
+                                 ['/usr/lib', '/usr/lib/i386-linux-gnu', '/usr/lib/x86_64-linux-gnu'],
                                  ['/usr/local/lib',
                                   '/usr/local/ssl/lib',
                                   '/usr/contrib/ssl/lib/'
@@ -131,7 +131,7 @@ setup(name='sslfix',
 
 The fixes are:
  - Remove installing tests system-wide (fixes "permission denied" error when installing into virtualenv).
- - Add /usr/lib/i386-linux-gnu to search path (fixes compilation on ubuntu 12.04).
+ - Add /usr/lib/i386-linux-gnu and /usr/lib/x86_64-linux-gnu to search path (fixes compilation on ubuntu 12.04).
  - Do not use SSLv2_method if not present (fixes ImportError: ssl/_ssl2.so: undefined symbol: SSLv2_method).
 
 See https://github.com/denik/sslfix
