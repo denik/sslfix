@@ -1,3 +1,7 @@
+**Update: These patches have been merged into official package (version 1.16).**
+
+=====
+
 This is a fixed version of ssl package (http://pypi.python.org/pypi/ssl).
 
 To install it, do
