@@ -8,7 +8,7 @@ To install it, do
 
   pip install sslfix
 
-or download it from http://pypi.python.org/pypy/sslfix
+or download it from http://pypi.python.org/pypi/sslfix
 
 Note, that the actual package installed is `ssl` and not `sslfix` (it's a drop-in replacement).
 
